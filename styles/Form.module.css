@@ -1,0 +1,224 @@
+.container {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: #111;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.formCard {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #f7c600;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ccc;
+}
+
+.progressBar {
+  height: 8px;
+  background: #333;
+  border-radius: 4px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: #f7c600;
+  transition: width 0.3s ease;
+}
+
+.formStep {
+  animation: fadeIn 0.5s ease;
+}
+
+.inputGroup {
+  margin-bottom: 1.5rem;
+}
+
+.inputGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.inputGroup input,
+.inputGroup textarea,
+.inputGroup select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background: #222;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.inputGroup textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.inputGroup input:focus,
+.inputGroup textarea:focus,
+.inputGroup select:focus {
+  outline: none;
+  border-color: #f7c600;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.row .inputGroup {
+  flex: 1;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.nextButton,
+.submitButton {
+  padding: 0.75rem 2rem;
+  background: #f7c600;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.backButton {
+  padding: 0.75rem 2rem;
+  background: transparent;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nextButton:hover,
+.submitButton:hover {
+  background: #e0b500;
+}
+
+.backButton:hover {
+  background: #333;
+  border-color: #777;
+}
+
+.submitButton:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.info {
+  color: #aaa;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.fileInfo {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #f7c600;
+}
+
+.fileHelp {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.reviewSection {
+  background: #222;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.reviewSection h4 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #f7c600;
+}
+
+.reviewSection p {
+  margin: 0.5rem 0;
+}
+
+.termsGroup {
+  margin: 2rem 0;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkboxLabel a {
+  color: #f7c600;
+  text-decoration: none;
+}
+
+.checkboxLabel a:hover {
+  text-decoration: underline;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .formCard {
+    padding: 1.5rem;
+  }
+  
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,175 @@
+.container {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: #111;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  background: #1a1a1a;
+  border-radius: 8px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: fadeIn 0.6s ease;
+}
+
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.checkIcon {
+  width: 80px;
+  height: 80px;
+  color: #f7c600;
+  animation: checkmark 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #f7c600;
+}
+
+.message {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  color: #ddd;
+}
+
+.infoBox {
+  background: #222;
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.infoBox h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #f7c600;
+}
+
+.infoBox ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.infoBox li {
+  margin-bottom: 0.5rem;
+  color: #ccc;
+}
+
+.socialShare {
+  margin-bottom: 2rem;
+}
+
+.socialShare p {
+  margin-bottom: 1rem;
+  color: #aaa;
+}
+
+.socialButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.socialButtons a {
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.socialButtons a:hover {
+  opacity: 0.9;
+}
+
+.twitterButton {
+  background: #1DA1F2;
+  color: white;
+}
+
+.facebookButton {
+  background: #4267B2;
+  color: white;
+}
+
+.whatsappButton {
+  background: #25D366;
+  color: white;
+}
+
+.homeButton {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: #f7c600;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-decoration: none;
+}
+
+.homeButton:hover {
+  background: #e0b500;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+  }
+  
+  .message {
+    font-size: 1rem;
+  }
+  
+  .checkIcon {
+    width: 60px;
+    height: 60px;
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "know-your-fan",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@huggingface/inference": "^3.10.0",
+    "cheerio": "^1.0.0",
+    "formidable": "^3.5.4",
+    "isomorphic-unfetch": "^4.0.2",
+    "next": "^15.3.1",
+    "openai": "^4.96.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tesseract.js": "^6.0.1"
+  }
+}
