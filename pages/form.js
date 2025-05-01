@@ -7,6 +7,7 @@ export default function FanForm() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [formData, setFormData] = useState({
     // Basic Info
     name: '',
@@ -103,6 +104,7 @@ export default function FanForm() {
 // Em pages/form.js, na função handleSubmit
 const handleSubmit = async (e) => {
   e.preventDefault();
+  setErrorMsg('');
   setLoading(true);
   
   try {
@@ -140,20 +142,22 @@ const handleSubmit = async (e) => {
       body: data,
     });
     
+    const result = await response.json();
     if (response.ok) {
-      const result = await response.json();
       if (result.success && result.token && result.userId) {
         router.push(`/profile?token=${result.token}&userId=${result.userId}`);
       } else {
         router.push('/success');
       }
     } else {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to submit form');
+      // Caso 409 de CPF ou email duplicado
+      setErrorMsg(result.error || 'Ocorreu um erro ao enviar o formulário.');
+      setLoading(false);
+      return;
     }
   } catch (error) {
     console.error('Error submitting form:', error);
-    alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.');
+    setErrorMsg(error.message || 'Ocorreu um erro inesperado.');
   } finally {
     setLoading(false);
   }
@@ -162,6 +166,7 @@ const handleSubmit = async (e) => {
   return (
     <div className={styles.container}>
       <div className={styles.formCard}>
+        {errorMsg && <div className={styles.errorMessage}>{errorMsg}</div>}
         <h1 className={styles.title}>Perfil de Fã FURIA</h1>
         <p className={styles.subtitle}>
           {step === 1 && "Informações Pessoais"}

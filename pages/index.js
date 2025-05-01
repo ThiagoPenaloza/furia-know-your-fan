@@ -23,19 +23,35 @@ export default function Landing() {
         com camisa oficial e brindes FURIA.
       </p>
 
-      <Link href="/form">
-        {/* O Link injeta onClick e role no <button> */}
-        <button style={{
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <Link href="/form" style={{
           padding: '1rem 2rem',
           fontSize: '1.25rem',
           background: '#f7c600',
           border: 'none',
           borderRadius: 4,
-          cursor: 'pointer'
+          cursor: 'pointer',
+          color: '#000',
+          textDecoration: 'none',
+          fontWeight: 'bold'
         }}>
           Participar do Sorteio
-        </button>
-      </Link>
+        </Link>
+        
+        <Link href="/login" style={{
+          padding: '1rem 2rem',
+          fontSize: '1.25rem',
+          background: 'transparent',
+          border: '2px solid #f7c600',
+          borderRadius: 4,
+          cursor: 'pointer',
+          color: '#f7c600',
+          textDecoration: 'none',
+          fontWeight: 'bold'
+        }}>
+          Já me Cadastrei
+        </Link>
+      </div>
     </div>
   )
 }

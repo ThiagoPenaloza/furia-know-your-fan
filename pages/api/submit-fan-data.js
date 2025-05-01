@@ -54,7 +54,8 @@ export default async function handler(req, res) {
     const fanData = {
       name: getFieldValue(fields.name),
       email: getFieldValue(fields.email),
-      cpf: getFieldValue(fields.cpf),
+      // Normalizar o CPF antes de salvar
+      cpf: getFieldValue(fields.cpf).replace(/[^\d]/g, ''),
       birthDate: new Date(getFieldValue(fields.birthDate)),
       phone: getFieldValue(fields.phone),
       
@@ -105,7 +106,26 @@ export default async function handler(req, res) {
       fanData.selfie = `/uploads/${filename}`;
     }
 
-    // Salvar os dados no MongoDB
+    // ======== Verificação de CPF e email únicos ========
+    const conflict = await Fan.findOne({
+      $or: [
+        { cpf: fanData.cpf },
+        { email: fanData.email.toLowerCase().trim() }
+      ]
+    });
+    if (conflict) {
+      if (conflict.cpf === fanData.cpf) {
+        return res
+          .status(409)
+          .json({ error: 'Já existe um cadastro com este CPF.' });
+      }
+      if (conflict.email === fanData.email.toLowerCase().trim()) {
+        return res
+          .status(409)
+          .json({ error: 'Já existe um cadastro com este email.' });
+      }
+    }
+
     const fan = new Fan(fanData);
     await fan.save();
 

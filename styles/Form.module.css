@@ -222,3 +222,12 @@
     font-size: 1rem;
   }
 }
+
+.errorMessage {
+  background: #ffe5e5;
+  color: #d8000c;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}

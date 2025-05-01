@@ -2,6 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/form": "pages/form.js",
-  "/profile": "pages/profile.js"
+  "/profile": "pages/profile.js",
+  "/login": "pages/login.js",
+  "/connect-social": "pages/connect-social.js"
 }

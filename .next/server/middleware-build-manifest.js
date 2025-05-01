@@ -20,10 +20,15 @@ globalThis.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/form": [
+    "/connect-social": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/form.js"
+      "static/chunks/pages/connect-social.js"
+    ],
+    "/login": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/login.js"
     ],
     "/profile": [
       "static/chunks/webpack.js",

@@ -2,41 +2,137 @@
 import mongoose from 'mongoose';
 
 const FanSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  cpf: { type: String, required: true },
-  birthDate: { type: Date, required: true },
-  phone: { type: String, required: true },
-  address: {
-    street: { type: String, required: true },
-    number: { type: String, required: true },
-    complement: String,
-    neighborhood: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    zipCode: { type: String, required: true }
+  name: {
+    type: String,
+    required: [true, 'Por favor, informe seu nome']
   },
-  favoriteGames: [String],
-  favoriteTeams: [String],
-  favoritePlayers: [String],
-  attendedEvents: [String],
-  purchasedMerchandise: [String],
+  email: {
+    type: String,
+    required: [true, 'Por favor, informe seu email'],
+    unique: true,
+    match: [/^\S+@\S+\.\S+$/, 'Por favor, informe um email válido']
+  },
+  cpf: {
+    type: String,
+    required: [true, 'Por favor, informe seu CPF'],
+    unique: true
+  },
+  birthDate: {
+    type: Date,
+    required: [true, 'Por favor, informe sua data de nascimento']
+  },
+  phone: {
+    type: String,
+    required: [true, 'Por favor, informe seu telefone']
+  },
+  address: {
+    street: {
+      type: String,
+      required: [true, 'Por favor, informe sua rua']
+    },
+    number: {
+      type: String,
+      required: [true, 'Por favor, informe o número']
+    },
+    complement: {
+      type: String
+    },
+    neighborhood: {
+      type: String,
+      required: [true, 'Por favor, informe seu bairro']
+    },
+    city: {
+      type: String,
+      required: [true, 'Por favor, informe sua cidade']
+    },
+    state: {
+      type: String,
+      required: [true, 'Por favor, informe seu estado']
+    },
+    zipCode: {
+      type: String,
+      required: [true, 'Por favor, informe seu CEP']
+    }
+  },
+  favoriteGames: {
+    type: [String],
+    default: []
+  },
+  favoriteTeams: {
+    type: [String],
+    default: []
+  },
+  favoritePlayers: {
+    type: [String],
+    default: []
+  },
+  attendedEvents: {
+    type: [String],
+    default: []
+  },
+  purchasedMerchandise: {
+    type: [String],
+    default: []
+  },
   socialMedia: {
-    instagram: String,
-    twitter: String,
-    facebook: String,
-    twitch: String,
-    youtube: String
+    instagram: {
+      type: String,
+      default: ''
+    },
+    twitter: {
+      type: String,
+      default: ''
+    },
+    facebook: {
+      type: String,
+      default: ''
+    },
+    twitch: {
+      type: String,
+      default: ''
+    },
+    youtube: {
+      type: String,
+      default: ''
+    }
   },
   gamingProfiles: {
-    steam: String,
-    epic: String,
-    battleNet: String,
-    riotGames: String,
-    origin: String
+    steam: {
+      type: String,
+      default: ''
+    },
+    epic: {
+      type: String,
+      default: ''
+    },
+    battleNet: {
+      type: String,
+      default: ''
+    },
+    riotGames: {
+      type: String,
+      default: ''
+    },
+    origin: {
+      type: String,
+      default: ''
+    }
   },
-  idDocument: String, // armazene URL ou referência no GridFS
-  selfie: String // idem
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
+// Atualizar o timestamp updatedAt antes de salvar
+FanSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+// Verificar se o modelo já foi compilado para evitar erros
 export default mongoose.models.Fan || mongoose.model('Fan', FanSchema);
