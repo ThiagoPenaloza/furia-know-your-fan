@@ -2,6 +2,8 @@
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import path from 'path';
+import dbConnect from '../../lib/db';
+import User from '../../models/User';
 
 // Disable the default body parser to handle form data with files
 export const config = {
@@ -16,6 +18,9 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Connect to database
+    await dbConnect();
+    
     // Parse the form data
     const form = new IncomingForm({
       uploadDir: path.join(process.cwd(), 'uploads'),
@@ -37,11 +42,11 @@ export default async function handler(req, res) {
     });
 
     // Process the data
-    const fanData = {
+    const userData = {
       name: fields.name,
       email: fields.email,
       cpf: fields.cpf,
-      birthDate: fields.birthDate,
+      birthDate: new Date(fields.birthDate),
       phone: fields.phone,
       address: {
         street: fields['address.street'],
@@ -58,11 +63,26 @@ export default async function handler(req, res) {
       attendedEvents: JSON.parse(fields.attendedEvents || '[]'),
       purchasedMerchandise: JSON.parse(fields.purchasedMerchandise || '[]'),
       socialMedia: {
-        instagram: fields['socialMedia.instagram'] || '',
-        twitter: fields['socialMedia.twitter'] || '',
-        facebook: fields['socialMedia.facebook'] || '',
-        twitch: fields['socialMedia.twitch'] || '',
-        youtube: fields['socialMedia.youtube'] || '',
+        instagram: { 
+          username: fields['socialMedia.instagram'] || '',
+          connected: false
+        },
+        twitter: { 
+          username: fields['socialMedia.twitter'] || '',
+          connected: false
+        },
+        facebook: { 
+          username: fields['socialMedia.facebook'] || '',
+          connected: false
+        },
+        twitch: { 
+          username: fields['socialMedia.twitch'] || '',
+          connected: false
+        },
+        youtube: { 
+          username: fields['socialMedia.youtube'] || '',
+          connected: false
+        },
       },
       gamingProfiles: {
         steam: fields['gamingProfiles.steam'] || '',
@@ -74,43 +94,28 @@ export default async function handler(req, res) {
       documents: {
         idDocument: files.idDocument ? {
           filename: path.basename(files.idDocument.filepath),
-          size: files.idDocument.size,
-          mimetype: files.idDocument.mimetype,
+          verified: false
         } : null,
         selfie: files.selfie ? {
           filename: path.basename(files.selfie.filepath),
-          size: files.selfie.size,
-          mimetype: files.selfie.mimetype,
+          verified: false
         } : null,
-      },
-      createdAt: new Date().toISOString(),
+      }
     };
 
-    // In a real application, you would save this data to a database
-    // For this example, we'll save it to a JSON file
-    const dataFilePath = path.join(process.cwd(), 'data', 'fans.json');
+    // Save user to database
+    const user = new User(userData);
+    await user.save();
     
-    // Ensure data directory exists
-    if (!fs.existsSync(path.dirname(dataFilePath))) {
-      fs.mkdirSync(path.dirname(dataFilePath), { recursive: true });
-    }
+    // Generate a session token for the user
+    const token = Buffer.from(`${user._id}:${Date.now()}`).toString('base64');
     
-    // Read existing data or create empty array
-    let existingData = [];
-    try {
-      if (fs.existsSync(dataFilePath)) {
-        existingData = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
-      }
-    } catch (error) {
-      console.error('Error reading existing data:', error);
-    }
-    
-    // Add new data and save
-    existingData.push(fanData);
-    fs.writeFileSync(dataFilePath, JSON.stringify(existingData, null, 2));
-
-    // Return success response
-    return res.status(200).json({ success: true });
+    // Return success response with token
+    return res.status(200).json({ 
+      success: true,
+      token,
+      userId: user._id
+    });
   } catch (error) {
     console.error('Error processing form submission:', error);
     return res.status(500).json({ error: 'Internal server error' });
