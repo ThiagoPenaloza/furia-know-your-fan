@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 const UserSchema = new mongoose.Schema({
   // Basic Info
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  cpf: { type: String, required: true, unique: true },
+  email: { type: String, required: true },
+  cpf: { type: String, required: true },
   birthDate: { type: Date, required: true },
   phone: { type: String, required: true },
   
@@ -68,11 +68,11 @@ const UserSchema = new mongoose.Schema({
   
   // Gaming Profiles
   gamingProfiles: {
-    steam: { type: String },
-    epic: { type: String },
-    battleNet: { type: String },
-    riotGames: { type: String },
-    origin: { type: String },
+    steam: String,
+    epic: String,
+    battleNet: String,
+    riotGames: String,
+    origin: String,
   },
   
   // Document Verification
@@ -87,31 +87,6 @@ const UserSchema = new mongoose.Schema({
       verified: { type: Boolean, default: false },
       verificationDate: Date
     },
-  },
-  
-  // Social Media Analysis
-  socialAnalysis: {
-    esportsInteractions: [
-      {
-        platform: String,
-        organization: String,
-        interactionType: String,
-        content: String,
-        date: Date
-      }
-    ],
-    followedPages: [
-      {
-        platform: String,
-        pageName: String,
-        pageType: String,
-        followedSince: Date
-      }
-    ],
-    sentiment: {
-      towardsFuria: { type: Number, min: -1, max: 1 },
-      towardsEsports: { type: Number, min: -1, max: 1 }
-    }
   },
   
   // Metadata

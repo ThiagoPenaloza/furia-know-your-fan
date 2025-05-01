@@ -46,8 +46,8 @@ export default function Success() {
           </div>
         </div>
         
-        <Link href="/">
-          <a className={styles.homeButton}>Voltar para a Página Inicial</a>
+        <Link href="/" className={styles.homeButton}>
+          Voltar para a Página Inicial
         </Link>
       </div>
     </div>

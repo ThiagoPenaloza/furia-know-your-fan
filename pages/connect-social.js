@@ -63,8 +63,8 @@ export default function ConnectSocial() {
         <div className={styles.card}>
           <h1>Erro</h1>
           <p>{error}</p>
-          <Link href="/">
-            <a className={styles.button}>Voltar para a Página Inicial</a>
+          <Link href="/" className={styles.button}>
+            Voltar para a Página Inicial
           </Link>
         </div>
       </div>
@@ -168,11 +168,11 @@ export default function ConnectSocial() {
         </div>
 
         <div className={styles.buttonGroup}>
-          <Link href={`/dashboard?token=${token}&userId=${userId}`}>
-            <a className={styles.skipButton}>Pular por enquanto</a>
+          <Link href={`/dashboard?token=${token}&userId=${userId}`} className={styles.skipButton}>
+            Pular por enquanto
           </Link>
-          <Link href={`/dashboard?token=${token}&userId=${userId}`}>
-            <a className={styles.continueButton}>Continuar para o Dashboard</a>
+          <Link href={`/dashboard?token=${token}&userId=${userId}`} className={styles.continueButton}>
+            Continuar para o Dashboard
           </Link>
         </div>
       </div>

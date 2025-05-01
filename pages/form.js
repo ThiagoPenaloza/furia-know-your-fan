@@ -100,55 +100,64 @@ export default function FanForm() {
     window.scrollTo(0, 0);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+// Em pages/form.js, na função handleSubmit
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  
+  try {
+    // Create FormData object to handle file uploads
+    const data = new FormData();
     
-    try {
-      // Create FormData object to handle file uploads
-      const data = new FormData();
-      
-      // Add all form data except files
-      Object.keys(formData).forEach(key => {
-        if (key !== 'idDocument' && key !== 'selfie') {
-          if (typeof formData[key] === 'object' && !Array.isArray(formData[key]) && formData[key] !== null) {
-            // Handle nested objects
-            Object.keys(formData[key]).forEach(nestedKey => {
-              data.append(`${key}.${nestedKey}`, formData[key][nestedKey]);
-            });
-          } else {
-            data.append(key, JSON.stringify(formData[key]));
-          }
+    // Add all form data except files
+    Object.keys(formData).forEach(key => {
+      if (key !== 'idDocument' && key !== 'selfie') {
+        if (typeof formData[key] === 'object' && !Array.isArray(formData[key]) && formData[key] !== null) {
+          // Handle nested objects
+          Object.keys(formData[key]).forEach(nestedKey => {
+            data.append(`${key}.${nestedKey}`, formData[key][nestedKey]);
+          });
+        } else {
+          data.append(key, JSON.stringify(formData[key]));
         }
-      });
-      
-      // Add files
-      if (formData.idDocument) {
-        data.append('idDocument', formData.idDocument);
       }
-      
-      if (formData.selfie) {
-        data.append('selfie', formData.selfie);
-      }
-      
-      // Send data to API
-      const response = await fetch('/api/submit-fan-data', {
-        method: 'POST',
-        body: data,
-      });
-      
-      if (response.ok) {
-        router.push('/success');
-      } else {
-        throw new Error('Failed to submit form');
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.');
-    } finally {
-      setLoading(false);
+    });
+    
+    // Add files
+    if (formData.idDocument) {
+      console.log('Adding ID document:', formData.idDocument);
+      data.append('idDocument', formData.idDocument);
     }
-  };
+    
+    if (formData.selfie) {
+      console.log('Adding selfie:', formData.selfie);
+      data.append('selfie', formData.selfie);
+    }
+    
+    // Send data to API
+    const response = await fetch('/api/submit-fan-data', {
+      method: 'POST',
+      body: data,
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.token && result.userId) {
+        router.push(`/profile?token=${result.token}&userId=${result.userId}`);
+      } else {
+        router.push('/success');
+      }
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to submit form');
+    }
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    alert('Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className={styles.container}>
