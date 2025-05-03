@@ -1,39 +1,12 @@
-import { useState, useEffect } from 'react'
+import { signIn } from 'next-auth/react'
 
-export default function SocialLinks({ value, onChange }) {
-  const [url, setUrl] = useState('')
-
-  useEffect(() => {
-    onChange(value)
-  }, [value, onChange])
-
-  function addLink() {
-    if (!url) return
-    // marcamos “pendente” para futura validação manual
-    onChange([...value, { url, status: 'Pendente' }])
-    setUrl('')
-  }
-
+export function SocialLinks({ fan }) {
   return (
-    <div style={{ display: 'grid', gap: 12 }}>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <input
-          style={{ flex: 1 }}
-          placeholder="URL do seu perfil social"
-          value={url}
-          onChange={e => setUrl(e.target.value)}
-        />
-        <button onClick={addLink} disabled={!url}>Adicionar</button>
-      </div>
-      <ul>
-        {value.map((item, idx) => (
-          <li key={idx}>
-            <a href={item.url} target="_blank" rel="noopener noreferrer">
-              {item.url}
-            </a> – {item.status}
-          </li>
-        ))}
-      </ul>
+    <div>
+      <button onClick={() => signIn('twitch', { callbackUrl: '/connect-social'})}>
+        Conectar Twitch
+      </button>
+      {fan.socialMedia.twitch.connected && <span>Conectado como @{fan.socialMedia.twitch.username}</span>}
     </div>
   )
 }

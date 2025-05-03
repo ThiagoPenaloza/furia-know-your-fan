@@ -1,0 +1,18 @@
+/* Paleta FURIA: fundo escuro, textos claros e amarelo como destaque */
+:root {
+  --color-bg-dark:        #111;   /* fundo geral */
+  --color-card:           #1a1a1a;
+  --color-surface:        #222;
+  --color-border:         #333;
+  --color-border-muted:   #555;
+
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: #cccccc;
+  --color-text-muted:     #aaaaaa;
+
+  --color-accent:         #f7c600;
+  --color-accent-hover:   #e0b500;
+
+  --color-error-bg:       #ffe5e5;
+  --color-error-text:     #d8000c;
+}

@@ -1,13 +1,21 @@
 // models/User.js
 import mongoose from 'mongoose';
+import bcrypt   from 'bcryptjs';
 
 const UserSchema = new mongoose.Schema({
-  // Basic Info
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  cpf: { type: String, required: true },
-  birthDate: { type: Date, required: true },
-  phone: { type: String, required: true },
+  /* ===== obrigatórios do Next-Auth ===== */
+  name          : { type:String, required:true },
+  email         : { type:String, required:true, unique:true, lowercase:true },
+  emailVerified : { type:Date },
+  image         : { type:String },
+
+  /* ===== login local ===== */
+  password      : { type:String, required:true, select:false },
+
+  /* ===== seus campos extras ===== */
+  cpf           : { type:String, required:true, unique:true },
+  birthDate     : { type:Date,   required:true },
+  phone         : { type:String, required:true },
   
   // Address
   address: {
@@ -93,5 +101,17 @@ const UserSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
+
+/* hash da senha */
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next()
+  const salt   = await bcrypt.genSalt(10)
+  this.password = await bcrypt.hash(this.password, salt)
+  next()
+})
+
+UserSchema.methods.comparePassword = function (candidate) {
+  return bcrypt.compare(candidate, this.password)
+}
 
 export default mongoose.models.User || mongoose.model('User', UserSchema);

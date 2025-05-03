@@ -3,7 +3,7 @@ import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import dbConnect from '../../lib/db';
-import Fan from '../../models/Fan';
+import User from '../../models/User';
 
 // Configuração para desabilitar o body parser padrão do Next.js
 // para poder processar o FormData com arquivos
@@ -53,9 +53,8 @@ export default async function handler(req, res) {
     // Processar os dados do formulário
     const fanData = {
       name: getFieldValue(fields.name),
-      email: getFieldValue(fields.email),
-      // Normalizar o CPF antes de salvar
-      cpf: getFieldValue(fields.cpf).replace(/[^\d]/g, ''),
+      email: getFieldValue(fields.email).toLowerCase().trim(),
+      password: getFieldValue(fields.password),
       birthDate: new Date(getFieldValue(fields.birthDate)),
       phone: getFieldValue(fields.phone),
       
@@ -77,12 +76,12 @@ export default async function handler(req, res) {
       purchasedMerchandise: processArrayField(fields.purchasedMerchandise),
       
       socialMedia: {
-        instagram: getFieldValue(fields['socialMedia.instagram']),
-        twitter: getFieldValue(fields['socialMedia.twitter']),
-        facebook: getFieldValue(fields['socialMedia.facebook']),
-        twitch: getFieldValue(fields['socialMedia.twitch']),
-        youtube: getFieldValue(fields['socialMedia.youtube']),
-      },
+              instagram: buildSocialObject(getFieldValue(fields['socialMedia.instagram'])),
+              twitter:   buildSocialObject(getFieldValue(fields['socialMedia.twitter'])),
+              facebook:  buildSocialObject(getFieldValue(fields['socialMedia.facebook'])),
+              twitch:    buildSocialObject(getFieldValue(fields['socialMedia.twitch'])),
+              youtube:   buildSocialObject(getFieldValue(fields['socialMedia.youtube'])),
+            },
       
       gamingProfiles: {
         steam: getFieldValue(fields['gamingProfiles.steam']),
@@ -91,7 +90,12 @@ export default async function handler(req, res) {
         riotGames: getFieldValue(fields['gamingProfiles.riotGames']),
         origin: getFieldValue(fields['gamingProfiles.origin']),
       },
+      // normaliza CPF (somente dígitos)
+      cpf: getFieldValue(fields.cpf).replace(/[^\d]/g, ''),
     };
+
+    // senha em texto-plano; o pre('save') hasheará
+    fanData.password = getFieldValue(fields.password);
 
     // Processar arquivos
     if (files.idDocument && files.idDocument.filepath) {
@@ -107,12 +111,14 @@ export default async function handler(req, res) {
     }
 
     // ======== Verificação de CPF e email únicos ========
-    const conflict = await Fan.findOne({
+    console.log('fanData.cpf:', fanData.cpf, 'fanData.email:', fanData.email)
+    const conflict = await User.findOne({
       $or: [
         { cpf: fanData.cpf },
         { email: fanData.email.toLowerCase().trim() }
       ]
     });
+    console.log('findOne conflict:', conflict)
     if (conflict) {
       if (conflict.cpf === fanData.cpf) {
         return res
@@ -126,18 +132,17 @@ export default async function handler(req, res) {
       }
     }
 
-    const fan = new Fan(fanData);
-    await fan.save();
+    // senha crua — o hook do Mongoose fará o hash
+    fanData.password = getFieldValue(fields.password);
 
-    // Gerar um token simples para autenticação
-    const token = Buffer.from(`${fan._id}:${Date.now()}`).toString('base64');
+    const user = new User(fanData);
+    await user.save();
 
     // Retornar sucesso
     return res.status(201).json({
       success: true,
       message: 'Dados salvos com sucesso',
-      token,
-      userId: fan._id
+      userId: user._id
     });
   } catch (error) {
     console.error('Error processing form submission:', error);
@@ -146,6 +151,14 @@ export default async function handler(req, res) {
       details: error.message 
     });
   }
+}
+
+
+
+function buildSocialObject(value) {
+  if (!value) return { connected:false }
+  const username = value.trim().replace(/^@/, '')
+  return { username, connected:true }
 }
 
 // Função auxiliar para processar campos de array

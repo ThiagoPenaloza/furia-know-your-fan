@@ -1,179 +1,243 @@
 // pages/connect-social.js
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import styles from '../styles/ConnectSocial.module.css';
+import { useEffect, useState } from 'react';
+import { useSession, signIn } from 'next-auth/react';
+import TwitchLogo               from '../components/icons/TwitchLogo';
+import TwitterLogo              from '../components/icons/TwitterLogo';  // ← adicionado
+import YouTubeLogo              from '../components/icons/YouTubeLogo';   // ← novo
+import styles                   from '../styles/ConnectSocial.module.css';
 
 export default function ConnectSocial() {
-  const router = useRouter();
-  const { token, userId } = router.query;
-  const [user, setUser] = useState(null);
+  const { data: session, status } = useSession();
+  const [user, setUser]   = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+  // Se não logado, manda para login
   useEffect(() => {
-    if (!token || !userId) return;
+    if (status === 'unauthenticated') window.location.href = '/login';
+  }, [status]);
 
-    async function fetchUserData() {
-      try {
-        const response = await fetch(`/api/user/${userId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch user data');
-        }
-        
-        const userData = await response.json();
-        setUser(userData);
-      } catch (err) {
-        setError('Não foi possível carregar seus dados. Por favor, tente novamente.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
+  // Busca perfil
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+    (async () => {
+      const res = await fetch('/api/me', { credentials:'include' });
+      const { user } = await res.json();
+      setUser(user);
+      setLoading(false);
+    })();
+  }, [status]);
 
-    fetchUserData();
-  }, [token, userId]);
+  // inicia o fluxo OAuth da Twitch
+  const connectTwitch = () =>
+    signIn('twitch', { callbackUrl: '/connect-social' });
 
-  const connectSocialMedia = (platform) => {
-    // Save current URL to return after OAuth flow
-    localStorage.setItem('returnUrl', window.location.href);
-    
-    // Redirect to the appropriate OAuth endpoint
-    window.location.href = `/api/auth/${platform}?userId=${userId}&token=${token}`;
+  // inicia o fluxo OAuth do Twitter
+  const connectTwitter = () =>
+    signIn('twitter', { callbackUrl: '/connect-social' });
+
+  // inicia o fluxo OAuth do Google
+  const connectYouTube = () =>
+    signIn('google', { callbackUrl: '/connect-social' });
+
+  const unlinkTwitch = async () => {
+    await fetch('/api/social/unlink/twitch', { method:'DELETE' });
+    const res = await fetch('/api/me', { credentials:'include' });
+    const { user } = await res.json();
+    setUser(user);
   };
 
-  if (loading) {
+  const unlinkTwitter = async () => {
+    await fetch('/api/social/unlink/twitter', { method:'DELETE' });
+    const res = await fetch('/api/me', { credentials:'include' });
+    const { user } = await res.json();
+    setUser(user);
+  };
+
+  const unlinkYouTube = async () => {
+    await fetch('/api/social/unlink/youtube', { method:'DELETE' });
+    const res = await fetch('/api/me', { credentials:'include' });
+    const { user } = await res.json();
+    setUser(user);
+  };
+
+  // estado de “carregando”
+  if (status === 'loading' || loading)
+    return <div className={styles.container}><div className={styles.card}><h1>Carregando…</h1></div></div>;
+
+  // se o perfil não veio (req. 500/401 etc.)
+  if (!user) {
     return (
       <div className={styles.container}>
         <div className={styles.card}>
-          <h1>Carregando...</h1>
+          <h1>Falha ao carregar perfil</h1>
         </div>
       </div>
-    );
+    )
   }
 
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.card}>
-          <h1>Erro</h1>
-          <p>{error}</p>
-          <Link href="/" className={styles.button}>
-            Voltar para a Página Inicial
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const raw   = user.socialMedia?.twitch  ?? {}
+  const rawTw = user.socialMedia?.twitter ?? {}
+  const rawYt = user.socialMedia?.youtube ?? {}
+
+  const twitch = {
+    connected : raw.connected,
+    username  : raw.username ?? raw.name,
+    avatar    :
+        raw.avatar
+     ?? raw.image
+     ?? raw.userData?.image
+     ?? raw.userData?.profile_image_url
+     ?? raw.userData?.picture
+  };
+
+  const twitter = {
+    connected : !!rawTw.connected,
+    // tenta raiz → userData.data → outros fallbacks
+    username  :
+        rawTw.username
+     ?? rawTw.name
+     ?? rawTw.userData?.data?.username        // v2
+     ?? rawTw.userData?.username              // v1 “include_entities”
+     ?? rawTw.userData?.screen_name
+     ?? rawTw.userData?.name,                 // último recurso
+    avatar    :
+        rawTw.avatar
+     ?? rawTw.image
+     ?? rawTw.userData?.data?.profile_image_url
+     ?? rawTw.userData?.profile_image_url
+     ?? rawTw.userData?.profile_image_url_https
+     ?? rawTw.userData?.image                // v1
+     ?? rawTw.userData?.picture
+  };
+
+  const youtube = {
+    connected : !!rawYt.connected,
+    username  :
+        rawYt.username
+     ?? rawYt.name
+     ?? rawYt.userData?.name,
+    avatar    :
+        rawYt.avatar
+     ?? rawYt.image
+     ?? rawYt.userData?.picture      // caso venha como “picture”
+     ?? rawYt.userData?.image        // caso venha como “image”
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.card}>
         <h1 className={styles.title}>Conecte suas Redes Sociais</h1>
-        <p className={styles.subtitle}>
-          Conectar suas redes sociais nos ajuda a personalizar sua experiência e 
-          analisar seu perfil como fã de esports.
-        </p>
-
         <div className={styles.socialGrid}>
+          {/* TWITCH CARD */}
           <div className={styles.socialCard}>
-            <div className={styles.socialIcon}>
-              <img src="/images/instagram-icon.png" alt="Instagram" />
+            <div className={styles.avatarWrapper}>
+              {twitch.connected && twitch.avatar ? (
+                <img src={twitch.avatar} alt={twitch.username} className={styles.avatar}/>
+              ) : (
+                <TwitchLogo size={60} />
+              )}
             </div>
-            <h3>Instagram</h3>
-            <p>Conecte para compartilhar suas fotos e interações com a FURIA</p>
-            <button 
-              className={`${styles.connectButton} ${user?.socialMedia?.instagram?.connected ? styles.connected : ''}`}
-              onClick={() => connectSocialMedia('instagram')}
-              disabled={user?.socialMedia?.instagram?.connected}
-            >
-              {user?.socialMedia?.instagram?.connected ? 'Conectado' : 'Conectar'}
-            </button>
-
+            <h3>
+              <TwitchLogo size={20} className={styles.logoInline} />
+              Twitch
+            </h3>
+            <p>
+              {twitch?.connected
+                ? `@${twitch.username}`
+                : 'Conecte sua conta para compartilhar streams que você assiste'}
+            </p>
+            {twitch?.connected ? (
+              <button
+                className={styles.unlinkButton}
+                onClick={unlinkTwitch}
+              >
+                Desvincular Conta
+              </button>
+            ) : (
+              <button
+                className={styles.connectButton}
+                onClick={connectTwitch}
+                disabled={status !== 'authenticated'}
+              >
+                Conectar
+              </button>
+            )}
           </div>
-
+          {/* TWITTER CARD */}
           <div className={styles.socialCard}>
-            <div className={styles.socialIcon}>
-              <img src="/images/twitter-icon.png" alt="Twitter" />
+            <div className={styles.avatarWrapper}>
+              {twitter.connected && twitter.avatar ? (
+                <img src={twitter.avatar} alt={twitter.username} className={styles.avatar}/>
+              ) : (
+                <TwitterLogo size={60} />
+              )}
             </div>
-            <h3>Twitter</h3>
-            <p>Compartilhe seus tweets e interações sobre esports</p>
-            <button 
-              className={`${styles.connectButton} ${user?.socialMedia?.twitter?.connected ? styles.connected : ''}`}
-              onClick={() => connectSocialMedia('twitter')}
-              disabled={user?.socialMedia?.twitter?.connected}
-            >
-              {user?.socialMedia?.twitter?.connected ? 'Conectado' : 'Conectar'}
-            </button>
+            <h3>
+              <TwitterLogo size={20} className={styles.logoInline} />
+              Twitter
+            </h3>
+            <p>
+              {twitter?.connected
+                ? `@${twitter.username}`
+                : 'Conecte para exibir seus últimos tweets'}
+            </p>
+            {twitter?.connected ? (
+              <button
+                className={styles.unlinkButton}
+                onClick={unlinkTwitter}
+              >
+                Desvincular Conta
+              </button>
+            ) : (
+              <button
+                className={styles.connectButton}
+                onClick={connectTwitter}
+                disabled={status !== 'authenticated'}
+              >
+                Conectar
+              </button>
+            )}
           </div>
+          {/* ────────── 🆕 YOUTUBE CARD ────────── */}
           <div className={styles.socialCard}>
-            <div className={styles.socialIcon}>
-              <img src="/images/twitch-icon.png" alt="Twitch" />
+            <div className={styles.avatarWrapper}>
+              {youtube.connected && youtube.avatar ? (
+                <img
+                  src={youtube.avatar}
+                  alt={youtube.username}
+                  className={styles.avatar}
+                />
+              ) : (
+                <YouTubeLogo size={60} />
+              )}
             </div>
-            <h3>Twitch</h3>
-            <p>Conecte sua conta para compartilhar streams que você assiste</p>
-            <button 
-              className={`${styles.connectButton} ${user?.socialMedia?.twitch?.connected ? styles.connected : ''}`}
-              onClick={() => connectSocialMedia('twitch')}
-              disabled={user?.socialMedia?.twitch?.connected}
-            >
-              {user?.socialMedia?.twitch?.connected ? 'Conectado' : 'Conectar'}
-            </button>
+            <h3>
+              <YouTubeLogo size={20} className={styles.logoInline} />
+              YouTube
+            </h3>
+            <p>
+              {youtube.connected
+                ? `@${youtube.username}`
+                : 'Conecte para exibir seu canal do YouTube'}
+            </p>
+            {youtube.connected ? (
+              <button
+                className={styles.unlinkButton}
+                onClick={unlinkYouTube}
+              >
+                Desvincular Conta
+              </button>
+            ) : (
+              <button
+                className={styles.connectButton}
+                onClick={connectYouTube}
+                disabled={status !== 'authenticated'}
+              >
+                Conectar
+              </button>
+            )}
           </div>
-
-          <div className={styles.socialCard}>
-        <div className={styles.socialIcon}>
-            <img src="/images/youtube-icon.png" alt="YouTube" />
-        </div>
-        <h3>YouTube</h3>
-        <p>Compartilhe seus vídeos favoritos e canais que você segue</p>
-        <button 
-            className={`${styles.connectButton} ${user?.socialMedia?.youtube?.connected ? styles.connected : ''}`}
-            onClick={() => connectSocialMedia('youtube')}
-            disabled={user?.socialMedia?.youtube?.connected}
-        >
-            {user?.socialMedia?.youtube?.connected ? 'Conectado' : 'Conectar'}
-        </button>
-        </div>
-
-        <div className={styles.socialCard}>
-        <div className={styles.socialIcon}>
-            <img src="/images/facebook-icon.png" alt="Facebook" />
-        </div>
-        <h3>Facebook</h3>
-        <p>Conecte para analisar páginas e grupos de esports que você segue</p>
-        <button 
-            className={`${styles.connectButton} ${user?.socialMedia?.facebook?.connected ? styles.connected : ''}`}
-            onClick={() => connectSocialMedia('facebook')}
-            disabled={user?.socialMedia?.facebook?.connected}
-        >
-            {user?.socialMedia?.facebook?.connected ? 'Conectado' : 'Conectar'}
-        </button>
-        </div>
-        </div>
-
-        <div className={styles.infoBox}>
-          <h3>O que acontece quando você conecta suas redes sociais?</h3>
-          <ul>
-            <li>Analisamos suas interações relacionadas a esports e FURIA</li>
-            <li>Identificamos suas preferências para personalizar sua experiência</li>
-            <li>Você pode receber conteúdo exclusivo baseado em seus interesses</li>
-            <li>Suas informações são tratadas com segurança e privacidade</li>
-          </ul>
-        </div>
-
-        <div className={styles.buttonGroup}>
-          <Link href={`/dashboard?token=${token}&userId=${userId}`} className={styles.skipButton}>
-            Pular por enquanto
-          </Link>
-          <Link href={`/dashboard?token=${token}&userId=${userId}`} className={styles.continueButton}>
-            Continuar para o Dashboard
-          </Link>
+          {/* Adicione outros cards de redes sociais aqui, se quiser */}
         </div>
       </div>
     </div>

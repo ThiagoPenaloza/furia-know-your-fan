@@ -1,21 +1,27 @@
 // models/Fan.js
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const FanSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Por favor, informe seu nome']
-  },
-  email: {
-    type: String,
-    required: [true, 'Por favor, informe seu email'],
-    unique: true,
-    match: [/^\S+@\S+\.\S+$/, 'Por favor, informe um email válido']
+    required: true
   },
   cpf: {
     type: String,
     required: [true, 'Por favor, informe seu CPF'],
-    unique: true
+    unique: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false           // não vem por padrão em queries
   },
   birthDate: {
     type: Date,
@@ -76,24 +82,44 @@ const FanSchema = new mongoose.Schema({
   },
   socialMedia: {
     instagram: {
-      type: String,
-      default: ''
+      username: String,
+      avatar: String,
+      connected: { type: Boolean, default: false },
+      accessToken: String,
+      userData: mongoose.Schema.Types.Mixed,
+      lastSync: Date
     },
     twitter: {
-      type: String,
-      default: ''
+      username: String,
+      avatar: String,
+      connected: { type: Boolean, default: false },
+      accessToken: String,
+      userData: mongoose.Schema.Types.Mixed,
+      lastSync: Date
     },
     facebook: {
-      type: String,
-      default: ''
+      username: String,
+      avatar: String,
+      connected: { type: Boolean, default: false },
+      accessToken: String,
+      userData: mongoose.Schema.Types.Mixed,
+      lastSync: Date
     },
     twitch: {
-      type: String,
-      default: ''
+      username: String,
+      avatar: String,
+      connected: { type: Boolean, default: false },
+      accessToken: String,
+      userData: mongoose.Schema.Types.Mixed,
+      lastSync: Date
     },
     youtube: {
-      type: String,
-      default: ''
+      username: String,
+      avatar: String,
+      connected: { type: Boolean, default: false },
+      accessToken: String,
+      userData: mongoose.Schema.Types.Mixed,
+      lastSync: Date
     }
   },
   gamingProfiles: {
@@ -128,11 +154,17 @@ const FanSchema = new mongoose.Schema({
   }
 });
 
-// Atualizar o timestamp updatedAt antes de salvar
-FanSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
+// Antes de salvar, hash da senha se modificada
+FanSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
 // Verificar se o modelo já foi compilado para evitar erros
+FanSchema.methods.comparePassword = function (candidate) {
+  return bcrypt.compare(candidate, this.password);
+};
+
 export default mongoose.models.Fan || mongoose.model('Fan', FanSchema);

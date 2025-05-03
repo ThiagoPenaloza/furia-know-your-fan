@@ -1,52 +1,46 @@
 .container {
-  min-height: 100vh;
-  padding: 2rem 1rem;
-  background: #111;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: var(--color-bg-dark);
+  color: var(--color-text-primary);
+  min-height:100vh;
+  display:flex; justify-content:center; align-items:center;
+  padding:2rem 1rem;
 }
 
 .card {
-  background: #1a1a1a;
-  border-radius: 8px;
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 700px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  animation: fadeIn 0.6s ease;
+  background: var(--color-card);
+  border-radius:8px;
+  padding:2rem 2.5rem;
+  max-width:600px; width:100%;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
 }
 
 .iconWrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
+  width:80px; height:80px; margin:0 auto;
+  display:flex; justify-content:center; align-items:center;
+  background:var(--color-surface); border-radius:50%;
 }
 
 .checkIcon {
-  width: 80px;
-  height: 80px;
-  color: #f7c600;
+  width:48px; height:48px; stroke:var(--color-accent);
   animation: checkmark 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
 .title {
   font-size: 2rem;
   margin-bottom: 1.5rem;
-  color: #f7c600;
+  color: var(--color-accent);
 }
 
 .message {
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 2rem;
-  color: #ddd;
+  color: var(--color-text-secondary);
 }
 
 .infoBox {
-  background: #222;
+  background: var(--color-surface);
   border-radius: 6px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -56,7 +50,7 @@
 .infoBox h3 {
   margin-top: 0;
   margin-bottom: 1rem;
-  color: #f7c600;
+  color: var(--color-accent);
 }
 
 .infoBox ul {
@@ -66,7 +60,7 @@
 
 .infoBox li {
   margin-bottom: 0.5rem;
-  color: #ccc;
+  color: var(--color-text-secondary);
 }
 
 .socialShare {
@@ -75,7 +69,7 @@
 
 .socialShare p {
   margin-bottom: 1rem;
-  color: #aaa;
+  color: var(--color-text-secondary);
 }
 
 .socialButtons {
@@ -115,7 +109,7 @@
 .homeButton {
   display: inline-block;
   padding: 0.75rem 2rem;
-  background: #f7c600;
+  background: var(--color-accent);
   color: #000;
   border: none;
   border-radius: 4px;
@@ -127,7 +121,7 @@
 }
 
 .homeButton:hover {
-  background: #e0b500;
+  background: var(--color-accent-hover);
 }
 
 @keyframes fadeIn {
