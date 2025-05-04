@@ -30,7 +30,14 @@ export default function FanForm() {
       zipCode     : '',
     },
 
-    /* ── Interesses ── */
+    /* ── Interesses (raw strings) ── */
+    favoriteGamesRaw: '',
+    favoriteTeamsRaw: '',
+    favoritePlayersRaw: '',
+    attendedEventsRaw: '',
+    purchasedMerchandiseRaw: '',
+
+    /* ── Interesses (arrays) ── */
     favoriteGames       : [],
     favoriteTeams       : [],
     favoritePlayers     : [],
@@ -59,14 +66,48 @@ export default function FanForm() {
   };
 
   const handleArrayInputChange = (e, field) => {
+    const rawField = `${field}Raw`;
+    const rawValue = e.target.value;
+
     setFormData({
       ...formData,
-      [field]: e.target.value.split(',').map((i) => i.trim()),
+      [rawField]: rawValue,
+      [field]: rawValue
+        .split(/[,\n]/)
+        .map(item => item.trim())
+        .filter(Boolean)
     });
   };
 
   const handleFileUpload = (e, field) => {
     setFormData({ ...formData, [field]: e.target.files[0] });
+  };
+
+  const handleCepBlur = async (e) => {
+    const cep = e.target.value.replace(/\D/g, '');
+    
+    if (cep.length === 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await response.json();
+        
+        if (!data.erro) {
+          setFormData(prev => ({
+            ...prev,
+            address: {
+              ...prev.address,
+              street: data.logradouro,
+              neighborhood: data.bairro,
+              city: data.localidade,
+              state: data.uf,
+              zipCode: cep,
+            }
+          }));
+        }
+      } catch (error) {
+        console.error('CEP fetch error:', error);
+      }
+    }
   };
 
   /* ---------- navegação ---------- */
@@ -84,6 +125,40 @@ export default function FanForm() {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
+
+    // Validation checks
+    const requiredFields = {
+      'name': 'Nome',
+      'email': 'Email',
+      'cpf': 'CPF',
+      'password': 'Senha',
+      'birthDate': 'Data de Nascimento',
+      'phone': 'Telefone',
+      'address.street': 'Rua',
+      'address.number': 'Número',
+      'address.neighborhood': 'Bairro',
+      'address.city': 'Cidade',
+      'address.state': 'Estado',
+      'address.zipCode': 'CEP'
+    };
+
+    const missingFields = [];
+
+    Object.entries(requiredFields).forEach(([field, label]) => {
+      if (field.includes('.')) {
+        const [section, key] = field.split('.');
+        if (!formData[section][key]) missingFields.push(label);
+      } else {
+        if (!formData[field]) missingFields.push(label);
+      }
+    });
+
+    if (missingFields.length > 0) {
+      setErrorMsg(`Por favor, preencha os seguintes campos obrigatórios: ${missingFields.join(', ')}`);
+      setLoading(false);
+      window.scrollTo(0, 0);
+      return;
+    }
 
     try {
       const data = new FormData();
@@ -152,8 +227,7 @@ export default function FanForm() {
       });
 
     } catch (err) {
-      console.error('Erro de envio:', err);
-      setErrorMsg(err.message);
+      setErrorMsg('Ocorreu um erro ao enviar o formulário. Por favor, verifique suas informações e tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -266,6 +340,7 @@ export default function FanForm() {
                   name="address.zipCode"
                   value={formData.address.zipCode}
                   onChange={handleInputChange}
+                  onBlur={handleCepBlur}
                   required
                 />
               </div>
@@ -355,8 +430,8 @@ export default function FanForm() {
                 <textarea
                   id="favoriteGames"
                   placeholder="CS:GO, Valorant…"
-                  value={formData.favoriteGames.join(', ')}
-                  onChange={(e) => handleArrayInputChange(e, 'favoriteGames')}
+                  value={formData.favoriteGamesRaw}
+                  onChange={e => handleArrayInputChange(e, 'favoriteGames')}
                 />
               </div>
 
@@ -365,8 +440,8 @@ export default function FanForm() {
                 <textarea
                   id="favoriteTeams"
                   placeholder="FURIA, LOUD…"
-                  value={formData.favoriteTeams.join(', ')}
-                  onChange={(e) => handleArrayInputChange(e, 'favoriteTeams')}
+                  value={formData.favoriteTeamsRaw}
+                  onChange={e => handleArrayInputChange(e, 'favoriteTeams')}
                 />
               </div>
 
@@ -375,8 +450,8 @@ export default function FanForm() {
                 <textarea
                   id="favoritePlayers"
                   placeholder="arT, KSCERATO…"
-                  value={formData.favoritePlayers.join(', ')}
-                  onChange={(e) => handleArrayInputChange(e, 'favoritePlayers')}
+                  value={formData.favoritePlayersRaw}
+                  onChange={e => handleArrayInputChange(e, 'favoritePlayers')}
                 />
               </div>
 
@@ -385,8 +460,8 @@ export default function FanForm() {
                 <textarea
                   id="attendedEvents"
                   placeholder="ESL One, BLAST…"
-                  value={formData.attendedEvents.join(', ')}
-                  onChange={(e) => handleArrayInputChange(e, 'attendedEvents')}
+                  value={formData.attendedEventsRaw}
+                  onChange={e => handleArrayInputChange(e, 'attendedEvents')}
                 />
               </div>
 
@@ -395,8 +470,8 @@ export default function FanForm() {
                 <textarea
                   id="purchasedMerchandise"
                   placeholder="Camisa, Mousepad…"
-                  value={formData.purchasedMerchandise.join(', ')}
-                  onChange={(e) => handleArrayInputChange(e, 'purchasedMerchandise')}
+                  value={formData.purchasedMerchandiseRaw}
+                  onChange={e => handleArrayInputChange(e, 'purchasedMerchandise')}
                 />
               </div>
 

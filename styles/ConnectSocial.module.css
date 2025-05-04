@@ -1,28 +1,76 @@
 .container {
-    min-height: 100vh;
-    padding: 2rem 1rem;
-    background: var(--color-bg-dark);
-    color: var(--color-text-primary);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Layered FURIA-inspired dark background */
+  background: linear-gradient(120deg, #0a0a0a 0%, #181818 100%);
+}
+.container::before,
+.container::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.container::before {
+  width: 600px;
+  height: 600px;
+  left: -180px;
+  top: -120px;
+  background: radial-gradient(circle at 30% 30%, #181818 0%, #0a0a0a 80%);
+  box-shadow: 0 0 120px 40px #fff10022;
+  animation: float1 12s ease-in-out infinite alternate;
+}
+.container::after {
+  width: 480px;
+  height: 480px;
+  right: -120px;
+  bottom: -100px;
+  background: radial-gradient(circle at 70% 70%, #fff10033 0%, #181818 80%);
+  box-shadow: 0 0 120px 40px #fff10011;
+  animation: float2 14s ease-in-out infinite alternate;
+}
+@keyframes float1 {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(40px) scale(1.08); }
+}
+@keyframes float2 {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-30px) scale(1.12); }
+}
   
-  .card {
-    background: var(--color-card);
-    border-radius: 8px;
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 900px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.6s ease;
-  }
+.card {
+  background: rgba(10, 10, 10, 0.92);
+  border-radius: 18px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 900px;
+  box-shadow: 0 10px 32px 0 rgba(0,0,0,0.32), 0 1.5px 8px 0 #fff10011;
+  animation: fadeIn 0.6s ease;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(8px) saturate(1.2);
+  border: 1.5px solid rgba(255, 241, 0, 0.10);
+  overflow: visible;
+}
   
   .title {
     font-size: 2rem;
     text-align: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 2.2rem;
     color: var(--color-accent);
+    letter-spacing: 0.01em;
+    font-weight: 800;
   }
   
   .subtitle {
@@ -39,19 +87,142 @@
     margin-bottom: 2.5rem;
   }
   
-  .socialCard {
-    background: var(--color-surface);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
-  }
-  
-  .socialCard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
+.socialCard {
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: 1.5rem 1.2rem 2rem 1.2rem;
+  text-align: center;
+  transition: transform 0.22s cubic-bezier(.4,1.4,.6,1), box-shadow 0.22s cubic-bezier(.4,1.4,.6,1), border 0.22s;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  border: 2.5px solid transparent;
+  overflow: hidden;
+}
+
+/* Animation for social cards on load */
+.fadeInSocial {
+  animation: fadeIn 0.6s cubic-bezier(.4,1.4,.6,1);
+}
+
+.socialCard:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.38);
+  z-index: 2;
+}
+
+.twitchCard {
+  border-color: #9147ff;
+  background: linear-gradient(135deg, #9147ff22 0%, var(--color-surface) 100%);
+}
+.twitterCard {
+  border-color: #1da1f2;
+  background: linear-gradient(135deg, #1da1f222 0%, var(--color-surface) 100%);
+}
+.youtubeCard {
+  border-color: #ff0000;
+  background: linear-gradient(135deg, #ff000022 0%, var(--color-surface) 100%);
+}
+
+.socialCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+  margin-top: 0.2rem;
+}
+
+.socialCardHeader .logoIcon {
+  width: 38px;
+  height: 38px;
+  transition: transform 0.22s cubic-bezier(.4,1.4,.6,1);
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.12));
+}
+
+.socialCard:hover .socialCardHeader .logoIcon {
+  transform: scale(1.18) rotate(-8deg);
+}
+
+.socialCard h3 {
+  margin: 0 0 0.75rem;
+  color: var(--color-accent);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.socialCard p {
+  font-size: 0.98rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.2rem;
+  min-height: 48px;
+}
+
+.socialCard .avatarWrapper {
+  margin-bottom: 0.5rem;
+}
+
+.socialCard .avatar {
+  border: 2px solid var(--color-border-muted);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+
+.connectButton {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--color-accent) 60%, var(--color-accent-hover) 100%);
+  color: #000;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+}
+
+.connectButton:hover {
+  background: linear-gradient(90deg, var(--color-accent-hover) 60%, var(--color-accent) 100%);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.connectButton:disabled {
+  background: var(--color-border-muted);
+  color: var(--color-text-primary);
+  cursor: default;
+  opacity: 0.7;
+}
+
+.unlinkButton {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1.5px solid var(--color-border-muted);
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s, border .18s, color .18s;
+  margin-top: 0.2rem;
+}
+.unlinkButton:hover {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.good {
+  color: #2ecc40;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.bad {
+  color: #ff4136;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
   
   .socialIcon {
     width: 60px;
@@ -226,25 +397,66 @@
 .avatarWrapper {
   width: 80px;
   height: 80px;
-  margin: 0 auto 1rem;
+  margin: 0 auto 0.7rem;
   border-radius: 50%;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-surface);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
 }
 
 .avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-muted);
+  transition: opacity 0.42s cubic-bezier(.4,1.4,.6,1), transform 0.42s cubic-bezier(.4,1.4,.6,1);
+  opacity: 1;
+  transform: scale(1);
+}
+
+.avatarVisible {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  z-index: 2;
+  pointer-events: auto;
+  transition: opacity 0.42s cubic-bezier(.4,1.4,.6,1), transform 0.42s cubic-bezier(.4,1.4,.6,1);
+}
+
+.avatarHidden {
+  opacity: 0 !important;
+  transform: scale(0.85) !important;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.42s cubic-bezier(.4,1.4,.6,1), transform 0.42s cubic-bezier(.4,1.4,.6,1);
+}
+
+.iconVisible {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  z-index: 2;
+  pointer-events: auto;
+  transition: opacity 0.42s cubic-bezier(.4,1.4,.6,1), transform 0.42s cubic-bezier(.4,1.4,.6,1);
+}
+
+.iconHidden {
+  opacity: 0 !important;
+  transform: scale(1.15) !important;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.42s cubic-bezier(.4,1.4,.6,1), transform 0.42s cubic-bezier(.4,1.4,.6,1);
 }
 
 .logoIcon {
-  width: 60px;
-  height: 60px;
+  width: 38px;
+  height: 38px;
   color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .refreshButton {
@@ -253,10 +465,11 @@
   right: 8px;
   background: transparent;
   border: none;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   cursor: pointer;
   color: var(--color-text-secondary);
-  transition: transform .3s ease;
+  transition: transform .3s ease, color .18s;
+  z-index: 3;
 }
-.refreshButton:hover { transform: rotate(90deg); }
+.refreshButton:hover { transform: rotate(90deg) scale(1.15); color: var(--color-accent); }
 .refreshButton:disabled { opacity: .4; cursor: default; }

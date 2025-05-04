@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth/next'
 import { authOptions }      from './auth/[...nextauth]'
 import dbConnect            from '../../lib/db'
-import User                 from '../../models/User'     // ← usa User, não Fan
+import User                 from '../../models/User'
 
 export default async function handler(req, res) {
   try {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Usuário não encontrado' })
     }
 
-    return res.status(200).json({ user })   // front-end continua usando “fan”
+    return res.status(200).json({ user })   // front-end continua usando "fan"
   } catch (err) {
     console.error('GET /api/me error:', err)
     return res.status(500).json({ error: 'Erro interno no servidor' })

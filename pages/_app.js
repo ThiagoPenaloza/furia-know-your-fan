@@ -6,8 +6,9 @@ import { NavBarLoggedIn } from '@/components/ui/NavBarLoggedIn'
 import { Home, UserPlus, LogIn } from 'lucide-react'
 import { Logo } from "@/components/Logo";
 import { useRouter } from 'next/router'
+import AnimatedBackground from "@/components/ui/AnimatedBackground";
 
-export default function MyApp({ Component, pageProps: { session, ...pageProps }, router }) {
+export default function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const currentRouter = useRouter();
   
   // Array de rotas que devem usar a NavBarLoggedIn
@@ -38,6 +39,7 @@ export default function MyApp({ Component, pageProps: { session, ...pageProps },
 
   return (
     <SessionProvider session={session}>
+      <AnimatedBackground />
       <Logo />
       {shouldShowLoggedNav ? (
         <NavBarLoggedIn />

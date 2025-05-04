@@ -26,13 +26,34 @@
   position: relative;
   z-index: 2;
   background: var(--color-card);
-  border-radius: 8px;
-  padding: 2rem 2.5rem;
+  border-radius: 16px;
+  padding: 2.5rem 2.5rem;
   width: 100%;
   max-width: 900px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.40), 0 0 0 2px #FFD70033;
   animation: fadeIn 0.4s ease;
   margin-top: 1rem;
+  border: 1.5px solid #FFD70033;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: -30px; left: 50%; width: 180px; height: 60px;
+  transform: translateX(-50%) rotate(-8deg);
+  background: radial-gradient(ellipse at center, #fff 0%, #fff0 80%);
+  opacity: 0.10;
+  pointer-events: none;
+  z-index: 1;
+  animation: lightSweepProfile 7s linear infinite;
+}
+
+@keyframes lightSweepProfile {
+  0% { left: -100px; opacity: 0.08; }
+  40% { opacity: 0.13; }
+  60% { opacity: 0.13; }
+  100% { left: 100%; opacity: 0.08; }
 }
 
 /* ========== Cabeçalho ========== */
@@ -150,6 +171,7 @@
   background: #b91422;
 }
 
+
 /* ========== Animações ========== */
 @keyframes fadeIn {
   from {
@@ -176,4 +198,67 @@
   .title {
     font-size: 1.75rem;
   }
+}
+
+.deleteButton {
+  background: transparent;
+  color: #d11a2a;
+  border: 1px solid #d11a2a;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.deleteButton:hover {
+  background: #d11a2a;
+  color: #fff;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--color-card);
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.cancelButton {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmDeleteButton {
+  background: #d11a2a;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
 }

@@ -146,7 +146,12 @@ export default async function handler (req, res) {
         'identity.backKey'  : backKey,
         'identity.selfieKey': selfieKey,
         'identity.status'   : approved ? 'approved' : 'rejected',
-        'identity.reason'   : reason
+        'identity.reason'   : reason,
+        // Atualiza os campos de verificação de documentos
+        'documents.idDocument.verified': approved,
+        'documents.idDocument.verificationDate': approved ? new Date() : null,
+        'documents.selfie.verified': approved,
+        'documents.selfie.verificationDate': approved ? new Date() : null,
       }
     })
 

@@ -5,12 +5,27 @@ import { useRouter }           from 'next/router';
 import styles                  from '../styles/Profile.module.css';
 import { Home, Share2, ExternalLink } from "lucide-react";
 import { NavBarLoggedIn } from "@/components/ui/NavBarLoggedIn";
+import AnimatedBackground from "@/components/ui/AnimatedBackground";
 
 export default function Profile() {
   const { data: session, status } = useSession();
   const router                    = useRouter();
   const [user,    setUser]        = useState(null);
   const [loading, setLoading]     = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Add this function
+  const handleDeleteAccount = async () => {
+    try {
+      await fetch('/api/users/delete-account', { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      signOut({ callbackUrl: '/' });
+    } catch (error) {
+      console.error('Error deleting account:', error);
+    }
+  };
 
   // navItems now handled by NavBarLoggedIn
 
@@ -46,7 +61,7 @@ export default function Profile() {
     ) : <p className={styles.emptyMessage}>Nenhum informado</p>;
 
   /* ---------- REDES SOCIAIS conectadas ---------- */
-  const socialMedia   = user.socialMedia ?? {};
+  const socialMedia   = user?.socialMedia ?? {};
   const socialLabel   = { twitch:'Twitch', twitter:'Twitter', youtube:'YouTube',
                           instagram:'Instagram', facebook:'Facebook' };
 
@@ -87,6 +102,7 @@ export default function Profile() {
   return (
     <>
       <NavBarLoggedIn />
+      <AnimatedBackground />
       <div className={styles.container}>
         <div className={styles.card}>
           <h1 className={styles.title}>Perfil do Fã</h1>
@@ -122,10 +138,10 @@ export default function Profile() {
           <section className={styles.section}>
             <h2>Endereço</h2>
             <p>
-              {user.address.street}, {user.address.number}
-              {user.address.complement && ` – ${user.address.complement}`},{' '}
-              {user.address.neighborhood}, {user.address.city} –{' '}
-              {user.address.state} • CEP {user.address.zipCode}
+              {user?.address?.street}, {user?.address?.number}
+              {user?.address?.complement && ` – ${user?.address?.complement}`},{' '}
+              {user?.address?.neighborhood}, {user?.address?.city} –{' '}
+              {user?.address?.state} • CEP {user?.address?.zipCode}
             </p>
           </section>
 
@@ -135,23 +151,23 @@ export default function Profile() {
             <div className={styles.interestsGrid}>
               <div className={styles.interestItem}>
                 <p className={styles.label}>Jogos Favoritos</p>
-                {renderTags(user.favoriteGames)}
+                {renderTags(user?.favoriteGames)}
               </div>
               <div className={styles.interestItem}>
                 <p className={styles.label}>Times Favoritos</p>
-                {renderTags(user.favoriteTeams)}
+                {renderTags(user?.favoriteTeams)}
               </div>
               <div className={styles.interestItem}>
                 <p className={styles.label}>Jogadores Favoritos</p>
-                {renderTags(user.favoritePlayers)}
+                {renderTags(user?.favoritePlayers)}
               </div>
               <div className={styles.interestItem}>
                 <p className={styles.label}>Eventos que Participou</p>
-                {renderTags(user.attendedEvents)}
+                {renderTags(user?.attendedEvents)}
               </div>
               <div className={styles.interestItem}>
                 <p className={styles.label}>Produtos Comprados</p>
-                {renderTags(user.purchasedMerchandise)}
+                {renderTags(user?.purchasedMerchandise)}
               </div>
             </div>
           </section>
@@ -186,6 +202,36 @@ export default function Profile() {
             >
               Sair
             </button>
+            <button
+              className={styles.deleteButton}
+              onClick={() => setShowDeleteModal(true)}
+            >
+              Apagar Conta
+            </button>
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+              <div className={styles.modalOverlay}>
+                <div className={styles.modal}>
+                  <h3>Apagar Conta</h3>
+                  <p>Tem certeza que deseja apagar sua conta? Esta ação não pode ser desfeita.</p>
+                  <div className={styles.modalButtons}>
+                    <button 
+                      className={styles.cancelButton}
+                      onClick={() => setShowDeleteModal(false)}
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      className={styles.confirmDeleteButton}
+                      onClick={handleDeleteAccount}
+                    >
+                      Confirmar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

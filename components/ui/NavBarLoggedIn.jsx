@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { UserCircle, Share2, ExternalLink } from "lucide-react";
+import { UserCircle, Share2, ExternalLink, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function NavBarLoggedIn({ className }) {
@@ -16,6 +16,8 @@ export function NavBarLoggedIn({ className }) {
     if (router.pathname === "/profile") setActiveTab("Perfil");
     else if (router.pathname === "/connect-social")
       setActiveTab("Redes Sociais");
+    else if (router.pathname === "/gaming-profiles")
+      setActiveTab("Perfis de E-sports");
     else setActiveTab("");
   }, [router.pathname]);
 
@@ -30,6 +32,12 @@ export function NavBarLoggedIn({ className }) {
       name: "Redes Sociais",
       url: "/connect-social",
       icon: Share2,
+      external: false,
+    },
+    {
+      name: "Perfis de E-sports",
+      url: "/gaming-profiles",
+      icon: Link2,
       external: false,
     },
     {

@@ -18,7 +18,7 @@ export default function Landing() {
       if (highlightRef.current) {
         highlightRef.current.classList.add(styles.animated)
       }
-    }, 2000)
+    }, 1200)
 
     const ctx = gsap.context(() => {
       // Main timeline with enhanced animations
@@ -29,17 +29,14 @@ export default function Landing() {
         }
       })
 
-      // Start the animation sequence
-      tl
-      
       // Card overlay animation with slight bounce
-      .to('.overlay-card', { 
+      tl.to('.overlay-card', { 
         opacity: 1, 
         y: 0, 
         duration: 1,
         ease: 'back.out(1.2)'
       }, '-=0.4')
-      
+
       // Title animation with slight stagger for each word
       .fromTo('.title-word', 
         { opacity: 0, y: 30 },
@@ -51,7 +48,7 @@ export default function Landing() {
         }, 
         '-=0.6'
       )
-      
+
       // Subtitle animation
       .fromTo('.subtitle-text',
         { opacity: 0, y: 20 },
@@ -62,7 +59,7 @@ export default function Landing() {
         }, 
         '-=0.4'
       )
-      
+
       // Button animations with bounce effect
       .fromTo('.btn-primary',
         { opacity: 0, y: 20, scale: 0.9 },
@@ -74,7 +71,7 @@ export default function Landing() {
         }, 
         '-=0.2'
       )
-      
+
       .fromTo('.btn-ghost',
         { opacity: 0, y: 20, scale: 0.9 },
         { 
@@ -84,8 +81,9 @@ export default function Landing() {
           ease: 'back.out(1.5)'
         }, 
         '-=0.6'
-      )
-      
+      );
+
+
       // Add subtle hover animations for buttons
       gsap.utils.toArray('.btn-primary, .btn-ghost').forEach(button => {
         button.addEventListener('mouseenter', () => {
@@ -139,13 +137,17 @@ export default function Landing() {
 
           <div className={`${styles.btnRow}`}>
             <Link href="/form" passHref legacyBehavior>
-              <a style={{ textDecoration: "none" }}>
+              <a style={{ textDecoration: "none" }} onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent("navStateChange", { detail: "Cadastrar" })
+                );
+              }}>
                 <HoverButton
                   className="mr-4 bg-white text-black"
                   startColor="#fff"
                   endColor="#fff"
                   animationIntensity="medium"
-                  effectColors={["#000"]}
+                  effectColors={["#FFD700", "#FFA500"]}
                   style={{ minWidth: 160 }}
                 >
                   Participar
@@ -153,13 +155,17 @@ export default function Landing() {
               </a>
             </Link>
             <Link href="/login" passHref legacyBehavior>
-              <a style={{ textDecoration: "none" }}>
+              <a style={{ textDecoration: "none" }} onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent("navStateChange", { detail: "Entrar" })
+                );
+              }}>
                 <HoverButton
                   className=""
                   startColor="#93c5fd"
                   endColor="#3b82f6"
                   animationIntensity="medium"
-                  effectColors={["#fff"]}
+                  effectColors={["#FFD700", "#FFDF00"]}
                   style={{ minWidth: 160 }}
                 >
                   Já me cadastrei
