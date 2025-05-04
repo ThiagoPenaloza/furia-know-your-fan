@@ -38,8 +38,9 @@ export default function FanForm() {
     purchasedMerchandise: [],
 
     /* ── Documentos ── */
-    idDocument: null,
-    selfie    : null,
+    idDocumentFront : null,
+    idDocumentBack  : null,
+    selfie          : null,
   });
 
   /* ---------- helpers de input ---------- */
@@ -82,6 +83,7 @@ export default function FanForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
 
     try {
       const data = new FormData();
@@ -100,22 +102,57 @@ export default function FanForm() {
         }
       });
 
-      if (formData.idDocument) data.append('idDocument', formData.idDocument);
-      if (formData.selfie)     data.append('selfie',     formData.selfie);
+      if (formData.idDocumentFront) data.append('idDocumentFront', formData.idDocumentFront);
+      if (formData.idDocumentBack)  data.append('idDocumentBack',  formData.idDocumentBack);
+      if (formData.selfie)         data.append('selfie',         formData.selfie);
 
-      const res = await fetch('/api/submit-fan-data', { method:'POST', body:data });
+      const res       = await fetch('/api/submit-fan-data', { method:'POST', body:data });
+      const resJson   = await res.json();                     // <- pega o JSON
+      if (!res.ok)   { setErrorMsg(resJson.error || 'Erro de cadastro'); return; }
 
-      if (res.ok) {
-        await signIn('credentials', {
-          email      : formData.email,
-          password   : formData.password,
-          callbackUrl: '/profile',
-        });
-      } else {
-        setErrorMsg('Erro ao enviar. Tente novamente.');
+      /*  resJson deve conter o id recém-criado.
+          Ajuste abaixo caso seu endpoint use outro campo              */
+      const savedUserId =
+            resJson.userId          ??
+            resJson.id              ??
+            resJson._id             ??
+            resJson.user?._id       ??
+            resJson.user?.id;
+
+      if (!savedUserId) {
+        throw new Error('ID do usuário não retornado pelo servidor');
       }
+
+      /* ---------- chama verificação de identidade ---------- */
+      const verifyFD = new FormData();
+      verifyFD.append('userId',    savedUserId);
+      verifyFD.append('name',      formData.name);
+      verifyFD.append('cpf',       formData.cpf);
+      verifyFD.append('birthDate', formData.birthDate);
+      verifyFD.append('idDocumentFront', formData.idDocumentFront);
+      verifyFD.append('idDocumentBack',  formData.idDocumentBack);
+      verifyFD.append('selfie',    formData.selfie);
+
+      const verRes   = await fetch('/api/verify-id', { method:'POST', body:verifyFD });
+      const { approved, reason } = await verRes.json();
+
+      if (!approved) {
+        /* ← NOVO: apaga o usuário recém-criado */
+        await fetch(`/api/users/${savedUserId}`, { method: 'DELETE' });
+
+        setErrorMsg(`Verificação de identidade falhou: ${reason || ''}`);
+        return;                                // sai sem logar
+      }
+
+      /* ---------- login automático + redirect ---------- */
+      await signIn('credentials', {
+        email      : formData.email,
+        password   : formData.password,
+        callbackUrl: '/profile'
+      });
+
     } catch (err) {
-      console.error(err);
+      console.error('Erro de envio:', err);
       setErrorMsg(err.message);
     } finally {
       setLoading(false);
@@ -383,18 +420,36 @@ export default function FanForm() {
                 sua identidade.
               </p>
 
+              {/* Documento – FRENTE */}
               <div className={styles.inputGroup}>
-                <label htmlFor="idDocument">Documento de Identidade *</label>
+                <label htmlFor="idDocumentFront">Documento (frente) *</label>
                 <input
                   type="file"
-                  id="idDocument"
+                  id="idDocumentFront"
                   accept="image/*,.pdf"
-                  onChange={(e) => handleFileUpload(e, 'idDocument')}
-                  required={!formData.idDocument}
+                  onChange={(e) => handleFileUpload(e, 'idDocumentFront')}
+                  required={!formData.idDocumentFront}
                 />
-                {formData.idDocument && (
+                {formData.idDocumentFront && (
                   <p className={styles.fileInfo}>
-                    Arquivo: {formData.idDocument.name}
+                    Arquivo: {formData.idDocumentFront.name}
+                  </p>
+                )}
+              </div>
+
+              {/* Documento – VERSO */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="idDocumentBack">Documento (verso) *</label>
+                <input
+                  type="file"
+                  id="idDocumentBack"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleFileUpload(e, 'idDocumentBack')}
+                  required={!formData.idDocumentBack}
+                />
+                {formData.idDocumentBack && (
+                  <p className={styles.fileInfo}>
+                    Arquivo: {formData.idDocumentBack.name}
                   </p>
                 )}
               </div>

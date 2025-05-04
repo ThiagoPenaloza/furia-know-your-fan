@@ -100,6 +100,14 @@ const UserSchema = new mongoose.Schema({
   // Metadata
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  externalProfiles: [{
+    url           : { type:String, required:true },
+    site          : { type:String },              // ex.: 'liquipedia', 'battlefy'
+    validated     : { type:Boolean, default:false },
+    relevanceScore: { type:Number, min:0, max:1 },// 0 = irrelevante / 1 = perfeito
+    aiSummary     : { type:String },              // explicação do modelo
+    addedAt       : { type:Date,   default:Date.now }
+  }]
 });
 
 /* hash da senha */

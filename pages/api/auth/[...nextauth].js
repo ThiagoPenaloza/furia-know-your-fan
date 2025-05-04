@@ -1,22 +1,25 @@
-import NextAuth            from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import TwitchProvider      from 'next-auth/providers/twitch'
-import TwitterProvider     from 'next-auth/providers/twitter'
-import GoogleProvider      from 'next-auth/providers/google'   // ← novo
-import { MongoDBAdapter }  from '@next-auth/mongodb-adapter'
-import clientPromise       from '../../../lib/mongodb'
-import dbConnect           from '../../../lib/db'
-import User                from '../../../models/User'
-import bcrypt              from 'bcryptjs'
+import NextAuth              from 'next-auth'
+import CredentialsProvider   from 'next-auth/providers/credentials'
+import TwitchProvider        from 'next-auth/providers/twitch'
+import TwitterProvider       from 'next-auth/providers/twitter'
+import GoogleProvider        from 'next-auth/providers/google'
+
+import { MongoDBAdapter }    from '@next-auth/mongodb-adapter'
+import clientPromise         from '../../../lib/mongodb'
+import dbConnect             from '../../../lib/db'
+
+import User                  from '../../../models/User'
+import bcrypt                from 'bcryptjs'
 
 export const authOptions = {
-  /* ───────────── sessão / adapter ───────────── */
+  /* ────────── sessão / adapter ────────── */
   adapter : MongoDBAdapter(clientPromise),
   secret  : process.env.NEXTAUTH_SECRET,
   session : { strategy: 'jwt' },
 
   /* ───────────── providers ───────────── */
   providers: [
+    /* ----- login local (e-mail + senha) ----- */
     CredentialsProvider({
       name: 'Email + Senha',
       credentials: {
@@ -30,7 +33,7 @@ export const authOptions = {
         if (!user)             throw new Error('Usuário não encontrado')
         const ok = await bcrypt.compare(password, user.password)
         if (!ok)               throw new Error('Senha inválida')
-        return { id: user._id.toString(), name:user.name, email:user.email }
+        return { id:user._id.toString(), name:user.name, email:user.email }
       }
     }),
 
@@ -40,37 +43,39 @@ export const authOptions = {
       clientSecret: process.env.TWITCH_CLIENT_SECRET,
       authorization: {
         params: {
-          scope : 'openid user:read:email',
-          claims: {
-            id_token: { email:null, preferred_username:null, picture:null }
-          }
+          scope : 'openid user:read:email user:read:follows',
+          claims: { id_token:{ email:null, preferred_username:null, picture:null } }
         }
       },
       idToken: true
     }),
 
-    /* ----------- 🆕 TWITTER -------------- */
-    // Versão OAuth 2.0 (recomendada)
+    /* ---------- Twitter (OAuth 2.0) ---------- */
     TwitterProvider({
       clientId    : process.env.TWITTER_CLIENT_ID,
       clientSecret: process.env.TWITTER_CLIENT_SECRET,
-      version     : '2.0',                 // usa a API 2
+      version     : '2.0',
       authorization: {
         params: {
-          // escopos mínimos para pegar dados de perfil e e-mail
-          scope: 'tweet.read users.read offline.access',
-        },
-      },
+          scope        : 'tweet.read users.read like.read follows.read offline.access',
+          'user.fields': 'id,name,username,profile_image_url'
+        }
+      }
     }),
 
-    /* ---------- 🆕 GOOGLE / YOUTUBE ---- */
+    /* ---------- Google / YouTube ---------- */
     GoogleProvider({
       clientId    : process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
           scope:
-            'openid email profile https://www.googleapis.com/auth/youtube.readonly'
+            'openid email profile https://www.googleapis.com/auth/youtube.readonly',
+          
+          access_type: 'offline',
+
+          prompt: 'consent'
+
         }
       }
     })
@@ -79,7 +84,7 @@ export const authOptions = {
   /* ───────────── callbacks ───────────── */
   callbacks: {
     async jwt({ token, user, account, profile }) {
-      /* login Twitch – guarda access_token e username */
+      /* adiciona dados extras do Twitch ao token */
       if (account?.provider === 'twitch') {
         token.twitch = {
           accessToken: account.access_token,
@@ -88,7 +93,7 @@ export const authOptions = {
         }
       }
 
-      /* garante id no token */
+      /* garante que id do usuário esteja no JWT */
       if (user && !token.id) token.id = user.id
       return token
     },
@@ -99,40 +104,42 @@ export const authOptions = {
       return session
     },
 
+    /* roda apenas na 1ª vez que aquele provider é usado */
     async signIn({ user, account, profile }) {
-      /* -------------------------------------------------
-       * Esse callback roda em dois cenários:
-       *  1) Usuário ENTRA pela 1ª vez com Twitter  → user.id é ObjectId (24 chars)
-       *  2) Usuário JÁ LOGADO e clica em “Conectar Twitter”
-       *     → user.id é o providerAccountId do Twitter (não é ObjectId)
-       * Só devemos mexer no banco no 1º caso para evitar
-       * “Cast to ObjectId failed”.
-       * ------------------------------------------------- */
-      if (account.provider === 'twitter') {
-        // Atualiza só se o id parece um ObjectId
-        if (/^[0-9a-fA-F]{24}$/.test(user.id ?? '')) {
-          await dbConnect()
+      if (account.provider !== 'twitter') return true
 
-          await User.findByIdAndUpdate(
-            user.id,
-            {
-              $set: {
-                'socialMedia.twitter': {
-                  connected: true,
-                  id       : profile.data?.id,
-                  username : profile.data?.username,
-                  name     : profile.data?.name,
-                  avatar   : profile.data?.profile_image_url,
-                  userData : profile,
-                  lastSync : new Date()
-                },
-              },
-            },
-            { new: true, upsert: false }
-          )
-        }
+      /* profile v2 → root / profile v1 → root (sem data) */
+      const src       = profile.data ?? profile
+      const username  = src.username
+                     ?? src.screen_name
+                     ?? null
+      const avatar    = src.profile_image_url
+                     ?? src.profile_image_url_https
+                     ?? src.image
+                     ?? null
+
+      /* grava no banco apenas se user.id for ObjectId (usuário já criado) */
+      if (/^[0-9a-fA-F]{24}$/.test(user.id ?? '')) {
+        await dbConnect()
+        await User.findByIdAndUpdate(
+          user.id,
+          {
+            $set: {
+              'socialMedia.twitter': {
+                connected   : true,
+                id          : src.id,
+                username,
+                name        : src.name,
+                avatar,
+                accessToken : account.access_token,
+                refreshToken: account.refresh_token,
+                userData    : profile,
+                lastSync    : new Date()
+              }
+            }
+          }
+        )
       }
-
       return true
     }
   },
@@ -141,52 +148,24 @@ export const authOptions = {
   events: {
     async linkAccount({ user, account, profile }) {
       await dbConnect()
-
       const dbUser = await User.findById(user.id)
       if (!dbUser) return
 
-      /* ───────────── TWITCH ───────────── */
+      /* ---------- Twitch ---------- */
       if (account.provider === 'twitch') {
         const username =
-          profile.preferred_username ||
-          profile.login               ||
-          profile.name                ||
-          null
-
+              profile.preferred_username ??
+              profile.login             ??
+              profile.name              ?? null
         const avatar =
-          profile.picture             ||
-          profile.profile_image_url   ||
-          profile.image               ||
-          null
+              profile.picture           ??
+              profile.profile_image_url ??
+              profile.image             ?? null
 
         dbUser.socialMedia.twitch = {
+          connected   : true,
           username,
           avatar,
-          connected   : true,
-          accessToken : account.access_token,
-          userData    : profile,
-          lastSync    : new Date()
-        }
-      }
-
-      /* ───────────── 🆕 TWITTER ───────────── */
-      if (account.provider === 'twitter') {
-        // profile pode vir em dois formatos:
-        //  • v2 → { data:{ … } }
-        //  • v1 → { id, screen_name, image, … }
-        const src = profile.data ?? profile
-
-        dbUser.socialMedia.twitter = {
-          connected   : true,
-          id          : src.id,
-          username    : src.username            // v2
-                     ?? src.screen_name        // v1
-                     ?? null,
-          name        : src.name,
-          avatar      : src.profile_image_url   // v2
-                     ?? src.profile_image_url_https
-                     ?? src.image              // v1
-                     ?? null,
           accessToken : account.access_token,
           refreshToken: account.refresh_token,
           userData    : profile,
@@ -194,13 +173,34 @@ export const authOptions = {
         }
       }
 
-      /* ───────────── 🆕 GOOGLE / YOUTUBE ───────────── */
+      /* ---------- Twitter ---------- */
+      if (account.provider === 'twitter') {
+        const src      = profile.data ?? profile
+        const username = src.username ?? src.screen_name ?? null
+        const avatar   =
+              src.profile_image_url ??
+              src.profile_image_url_https ??
+              src.image ?? null
+
+        dbUser.socialMedia.twitter = {
+          connected   : true,
+          id          : src.id,
+          username,
+          name        : src.name,
+          avatar,
+          accessToken : account.access_token,
+          refreshToken: account.refresh_token,
+          userData    : profile,
+          lastSync    : new Date()
+        }
+      }
+
+      /* ---------- Google / YouTube ---------- */
       if (account.provider === 'google') {
         const avatar =
-          profile.picture           ||   // padrão Google
-          profile.image             ||   // quando vem como “image”
-          profile.avatar            ||   // qualquer outro alias
-          null
+              profile.picture ??
+              profile.image   ??
+              profile.avatar  ?? null
 
         dbUser.socialMedia.youtube = {
           connected   : true,
@@ -208,9 +208,9 @@ export const authOptions = {
           username    : profile.name,
           name        : profile.name,
           avatar,
-          userData    : profile,
           accessToken : account.access_token,
           refreshToken: account.refresh_token,
+          userData    : profile,
           lastSync    : new Date()
         }
       }
@@ -219,6 +219,7 @@ export const authOptions = {
     }
   },
 
+  /* páginas customizadas */
   pages: { signIn:'/login', error:'/connect-social' }
 }
 

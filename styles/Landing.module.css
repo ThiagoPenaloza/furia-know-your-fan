@@ -1,0 +1,79 @@
+/* fundo de página */
+.page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('https://furiagg.fbitsstatic.net/img/b/1be4afd5-a727-4555-81fd-e779a32578be.jpg') center/cover no-repeat fixed;
+}
+
+/* overlay “cartão” semi-transparente */
+.overlay {
+  background: rgba(17, 17, 17, 0.7);    /* preto 70 % */
+  backdrop-filter: blur(4px);
+  padding: 3rem 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 640px;
+  width: 90%;
+  color: var(--color-text-primary);
+}
+
+/* títulos */
+.title   { font-size: 2.5rem; margin-bottom: .75rem; }
+.subtitle{ font-size: 1.2rem;  color: var(--color-text-secondary); }
+
+.btnRow  {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+/* força cada link dentro da linha de botões a ocupar o próprio “bloco”   */
+/* isso evita que navegadores tratem o segundo <a> como texto colado ao    */
+/* primeiro e garante o espaçamento/padding que definimos                  */
+.btnRow a,
+.btnRow .btnPrimary,
+.btnRow .btnGhost {
+  display: inline-block;
+}
+
+/* botões reutilizam sua paleta */
+.btnPrimary {
+  background: var(--color-accent);
+  color: #000;
+  font-weight: 700;
+  padding: .9rem 2.2rem;
+  border-radius: 9999px;
+  transition: background .25s;
+}
+.btnPrimary:hover { background: var(--color-accent-hover); }
+
+.btnGhost {
+  background: transparent;
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
+  font-weight: 700;
+  padding: .9rem 2.2rem;
+  border-radius: 9999px;
+  transition: all .25s;
+}
+.btnGhost:hover {
+  background: var(--color-accent);
+  color: #000;
+}
+
+/* mude de .hidden para .fadeIn */
+.fadeIn { 
+  opacity: 0; 
+  transform: translateY(20px); 
+}
+
+/* ─── Fonte FURIA apenas nos elementos principais da página ─── */
+.title,
+.subtitle,
+.btnRow a {
+  font-family: 'FontFURIA', sans-serif;
+}

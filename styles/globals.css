@@ -20,3 +20,16 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+@font-face {
+  font-family: 'FontFURIA';                     /* nome interno da fonte   */
+  src: url('/fonts/FontFURIA.woff2') format('woff2');
+  font-weight: 400;                             /* ajuste se for bold etc. */
+  font-style : normal;
+  font-display: swap;
+}
+
+/* diretivas Tailwind já existentes */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
