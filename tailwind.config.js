@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: ['class'],
   content: [
     './pages/**/*.{js,jsx}',
     './components/**/*.{js,jsx}',
@@ -7,9 +8,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        furia: '#000000',      // exemplo de cor custom
+        background: '#000',
+        foreground: '#fff',
+        primary: '#f7c600',
+        muted: '#222',
+        border: '#333'
+      },
+      borderColor: {
+        DEFAULT: "hsl(var(--border))",
+      },
+      backgroundColor: {
+        DEFAULT: "hsl(var(--background))",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }

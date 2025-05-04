@@ -523,8 +523,12 @@ export default function FanForm() {
               <div className={styles.reviewSection}>
                 <h4>Documentos</h4>
                 <p>
-                  <strong>Documento:</strong>{' '}
-                  {formData.idDocument ? 'Enviado' : 'Não enviado'}
+                  <strong>Documento (frente):</strong>{' '}
+                  {formData.idDocumentFront ? 'Enviado' : 'Não enviado'}
+                </p>
+                <p>
+                  <strong>Documento (verso):</strong>{' '}
+                  {formData.idDocumentBack ? 'Enviado' : 'Não enviado'}
                 </p>
                 <p>
                   <strong>Selfie:</strong>{' '}

@@ -229,6 +229,10 @@
   margin: 0 auto 1rem;
   border-radius: 50%;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
 }
 
 .avatar {
@@ -237,15 +241,10 @@
   object-fit: cover;
 }
 
-.logoSmall {
-  height: 18px;
-  vertical-align: middle;
+.logoIcon {
+  width: 60px;
+  height: 60px;
   color: var(--color-accent);
-}
-
-.logoInline {
-  vertical-align: middle;
-  margin: 6px 6px 8px 0px;
 }
 
 .refreshButton {

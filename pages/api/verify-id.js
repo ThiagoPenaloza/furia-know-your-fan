@@ -19,12 +19,24 @@ const s3  = new S3Client({  region: process.env.AWS_REGION })
 const tex = new TextractClient({ region: process.env.AWS_REGION })
 const rek = new RekognitionClient({ region: process.env.AWS_REGION })
 
-const upload = async (file, key) =>
-  s3.send(new PutObjectCommand({
+// Add image validation helper
+const isValidImage = (file) => {
+  const validTypes = ['image/jpeg', 'image/png']
+  return validTypes.includes(file.mimetype)
+}
+
+const upload = async (file, key) => {
+  // Read file content as buffer
+  const buffer = fs.readFileSync(file.filepath)
+  
+  // Upload to S3
+  return s3.send(new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET,
-    Key   : key,
-    Body  : file
+    Key: key,
+    Body: buffer,
+    ContentType: file.mimetype || 'image/jpeg' // Provide default mime type
   }))
+}
 
 const pick = v => Array.isArray(v) ? v[0] : v
 const norm = (s = '') =>
@@ -37,7 +49,6 @@ export default async function handler (req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
   try {
-    /* ----------- 1) Faz parse multipart/form-data ------------- */
     const { fields, files } = await new Promise((ok, err) =>
       formidable({ maxFileSize: 10 * 1024 * 1024 }).parse(req, (e,fld,fls)=>e?err(e):ok({fields:fld,files:fls}))
     )
@@ -51,15 +62,30 @@ export default async function handler (req, res) {
     const backFile  = pick(files.idDocumentBack)
     const selfie    = pick(files.selfie)
 
-    /* ----------- 2) Envia os arquivos para o S3 --------------- */
     const frontKey = `kyc/${userId}/doc-front-${Date.now()}`
     const backKey  = `kyc/${userId}/doc-back-${Date.now()}`
     const selfieKey= `kyc/${userId}/selfie-${Date.now()}`
 
+    // Upload files directly without stream conversion
     await Promise.all([
-      upload(fs.createReadStream(frontFile.filepath), frontKey),
-      upload(fs.createReadStream(backFile.filepath) , backKey ),
-      upload(fs.createReadStream(selfie.filepath)   , selfieKey)
+      s3.send(new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: frontKey,
+        Body: fs.createReadStream(frontFile.filepath),
+        ContentType: frontFile.mimetype
+      })),
+      s3.send(new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: backKey,
+        Body: fs.createReadStream(backFile.filepath),
+        ContentType: backFile.mimetype
+      })),
+      s3.send(new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: selfieKey,
+        Body: fs.createReadStream(selfie.filepath),
+        ContentType: selfie.mimetype
+      }))
     ])
 
     /* ----------- 3) TEXTRACT – extrai dados do documento ------ */

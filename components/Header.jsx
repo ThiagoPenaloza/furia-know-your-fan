@@ -1,42 +1,39 @@
+"use client";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
-import styles from "../styles/Header.module.css";
+import { Home, UserCircle, Share2, LogIn } from "lucide-react";
+import { NavBar } from "@/components/ui/tubelight-navbar";
 
 export default function Header() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
-  const authButton =
-    status === "loading" ? null : session ? (
-      <button onClick={() => signOut()} className={styles.authButton}>
-        Sair
-      </button>
-    ) : (
-      <button onClick={() => signIn()} className={styles.authButton}>
-        Entrar
-      </button>
-    );
+  const navItems = [
+    {
+      name: "Home",
+      url: "/",
+      icon: Home,
+    },
+    {
+      name: "Redes Sociais",
+      url: "/connect-social",
+      icon: Share2,
+    },
+    ...(session
+      ? [
+          {
+            name: "Perfil",
+            url: "/profile",
+            icon: UserCircle,
+          },
+        ]
+      : [
+          {
+            name: "Entrar",
+            url: "/login",
+            icon: LogIn,
+          },
+        ]),
+  ];
 
-  return (
-    <header className={styles.header}>
-      <div className={styles.container}>
-        <Link href="/" className={styles.logo}>
-          FURIA&nbsp;<span className={styles.logoAccent}>Match</span>
-        </Link>
-
-        <nav className={styles.nav}>
-          <Link href="/connect-social" className={styles.navLink}>
-            Redes&nbsp;Sociais
-          </Link>
-
-          {session && (
-            <Link href="/profile" className={styles.navLink}>
-              Perfil
-            </Link>
-          )}
-
-          {authButton}
-        </nav>
-      </div>
-    </header>
-  );
+  return <NavBar items={navItems} />;
 }

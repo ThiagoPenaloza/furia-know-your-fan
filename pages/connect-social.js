@@ -7,6 +7,7 @@ import TwitterLogo  from '../components/icons/TwitterLogo'
 import YouTubeLogo  from '../components/icons/YouTubeLogo'
 
 import styles       from '../styles/ConnectSocial.module.css'
+import { NavBarLoggedIn } from "@/components/ui/NavBarLoggedIn";
 
 export default function ConnectSocial() {
   /* ===== estado & sessão ===== */
@@ -108,8 +109,6 @@ export default function ConnectSocial() {
   /* ===== componente Card ===== */
   const Card = ({ plat, data, Logo }) => (
     <div className={styles.socialCard}>
-
-      {/* ícone de sync (só se conectado) */}
       {data.connected && (
         <button
           className={styles.refreshButton}
@@ -121,7 +120,6 @@ export default function ConnectSocial() {
         </button>
       )}
 
-      {/* avatar ou logo */}
       <div className={styles.avatarWrapper}>
         {data.connected && data.avatar
           ? <img src={data.avatar} alt={data.username} className={styles.avatar}/>
@@ -129,7 +127,6 @@ export default function ConnectSocial() {
       </div>
 
       <h3>
-        <Logo size={20} className={styles.logoInline}/>
         {plat === 'twitch' ? 'Twitch' : plat === 'twitter' ? 'Twitter' : 'YouTube'}
       </h3>
 
@@ -163,16 +160,18 @@ export default function ConnectSocial() {
 
   /* ===== render ===== */
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Conecte suas Redes Sociais</h1>
+    <>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <h1 className={styles.title}>Conecte suas Redes Sociais</h1>
 
-        <div className={styles.socialGrid}>
-          <Card plat="twitch"  data={twitch}  Logo={TwitchLogo}  />
-          <Card plat="twitter" data={twitter} Logo={TwitterLogo} />
-          <Card plat="youtube" data={youtube} Logo={YouTubeLogo} />
+          <div className={styles.socialGrid}>
+            <Card plat="twitch" data={twitch} Logo={TwitchLogo} />
+            <Card plat="twitter" data={twitter} Logo={TwitterLogo} />
+            <Card plat="youtube" data={youtube} Logo={YouTubeLogo} />
+          </div>
         </div>
       </div>
-    </div>
-  )
+    </>
+  );
 }

@@ -1,14 +1,30 @@
 /* ========== Estrutura geral ========== */
 .container {
-  background: var(--color-bg-dark);
-  color: var(--color-text-primary);
   min-height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 6rem 1rem 2rem 1rem;
+  background: url('https://furiagg.fbitsstatic.net/img/b/1be4afd5-a727-4555-81fd-e779a32578be.jpg') center/cover no-repeat fixed;
+  color: var(--color-text-primary);
+  position: relative;
+}
+
+.container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(5px);
+  z-index: 1;
 }
 
 .card {
+  position: relative;
+  z-index: 2;
   background: var(--color-card);
   border-radius: 8px;
   padding: 2rem 2.5rem;
@@ -16,6 +32,7 @@
   max-width: 900px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
   animation: fadeIn 0.4s ease;
+  margin-top: 1rem;
 }
 
 /* ========== Cabeçalho ========== */
@@ -89,6 +106,7 @@
 .emptyMessage {
   color: var(--color-text-muted);
   font-style: italic;
+  padding-bottom: 1rem;
 }
 
 /* ========== Botões ========== */
