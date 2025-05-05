@@ -1,7 +1,7 @@
 # 🦁 FURIA | Know Your Fan — Plataforma de Engajamento para Fãs de Esports
 
 <p align="center" style="background-color: white; padding: 20px; border-radius: 8px;">
-  <img src="https://github.com/user-attachments/assets/3cbf797e-9d5c-4a27-85e8-64a9fa806cf4" alt="FURIA Logo" width="300" background="#fff">
+  <img src="https://github.com/user-attachments/assets/3cbf797e-9d5c-4a27-85e8-64a9fa806cf4" alt="FURIA Logo" width="300" background-color="#fff">
 </p>
 
 > Plataforma web criada para o **Challenge #2: Know Your Fan** da FURIA, com foco em conhecer e engajar fãs através de tecnologias modernas de autenticação e redes sociais.
