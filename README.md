@@ -6,8 +6,8 @@
 
 > Plataforma web criada para o **Challenge #2: Know Your Fan** da FURIA, com foco em conhecer e engajar fãs através de tecnologias modernas de autenticação, IA e redes sociais.
 
-📱 **[Acesse a Demo](https://furia-know-your-fan.vercel.app)**  
-📹 **[Assista à Apresentação](https://youtu.be/demo-video)**
+📱 **[Acesse a Demo](https://furia-know-your-fan-ten.vercel.app)**  
+📹 **[Assista à Apresentação](https://youtu.be/-Ry3eH-4wtY)**
 
 ---
 
