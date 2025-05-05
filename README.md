@@ -1,7 +1,7 @@
 # 🦁 FURIA | Know Your Fan — Plataforma de Engajamento para Fãs de Esports
 
 <p align="center" style="background-color: white; padding: 20px; border-radius: 8px;">
-  <img src="https://github.com/user-attachments/assets/3cbf797e-9d5c-4a27-85e8-64a9fa806cf4" alt="FURIA Logo" width="300" background-color="#fff">
+  <img src="https://github.com/user-attachments/assets/3cbf797e-9d5c-4a27-85e8-64a9fa806cf4" alt="FURIA Logo" width="300">
 </p>
 
 > Plataforma web criada para o **Challenge #2: Know Your Fan** da FURIA, com foco em conhecer e engajar fãs através de tecnologias modernas de autenticação e redes sociais.
@@ -13,7 +13,7 @@
 
 ## 🧠 Visão Geral
 
-A aplicação coleta dados detalhados dos fãs, realiza verificação de identidade com IA, conecta redes sociais e valida perfis de jogos competitivos.  
+A aplicação coleta dados detalhados dos fãs, realiza verificação de identidade, conecta redes sociais e valida perfis de jogos competitivos.  
 Tudo isso com uma interface moderna, fluida e mobile-first.
 
 ### Objetivo do Desafio
@@ -24,7 +24,7 @@ Tudo isso com uma interface moderna, fluida e mobile-first.
 
 ## ✨ Funcionalidades Principais
 
-- Cadastro multi-etapas com verificação por IA
+- Cadastro multi-etapas com verificação na AWS.
 - Login tradicional e social (Twitter, Google, Twitch)
 - Upload e validação automática de documentos com AWS Rekognition e Textract
 - Conexão com redes sociais para análise de engajamento
