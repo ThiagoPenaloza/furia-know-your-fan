@@ -1,5 +1,0 @@
-./styles/ConnectSocial.module.css
-./styles/Form.module.css
-./styles/Login.module.css
-./styles/Profile.module.css
-./styles/Success.module.css
