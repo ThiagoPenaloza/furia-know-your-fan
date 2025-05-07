@@ -94,7 +94,6 @@ furia-know-your-fan/
 - Armazenamento criptografado em **AWS S3**
 - Gerenciamento de sessões seguro via **NextAuth**
 - Proteções ativas contra **CSRF**, **XSS** e ataques de força bruta
-- Estrutura pronta para **compliance com a LGPD**
 
 ---
 
